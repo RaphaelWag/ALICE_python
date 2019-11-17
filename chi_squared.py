@@ -1,13 +1,15 @@
-import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 
 cms_string_list = {'0.9': '3', '2.76': '7', '7': '20'}
 fp = 1
 total_bins = 0
-chi_squared_total = np.zeros(shape=100)
-chi_squared_total_w = np.zeros(shape=100)
-chi_squared_x = np.zeros(shape=100)
+chi_squared_total = np.zeros(shape=65)
+chi_squared_total_dw = np.zeros(shape=65)
+chi_squared_total_cw = np.zeros(shape=65)
+chi_squared_nw_x = np.zeros(shape=65)
+
+folder = '/mnt/d/Uni/Lectures/thesis/ALICE_results/chi_squared'
 
 for cms_string in cms_string_list:
     # READ IN DATA FROM PYTHIA
@@ -15,60 +17,49 @@ for cms_string in cms_string_list:
     norm = int(cms_string_list[cms_string]) - fp
     total_bins += int(cms_string_list[cms_string])
 
-    chi_squared = np.loadtxt(
-        '/mnt/d/Uni/Lectures/thesis/ALICE_data/simulated_ALICE_data/chi_squared_' + cms_string +'.txt').T
-    chi_squared_y = chi_squared[0]
-    chi_squared_x = chi_squared[1]
+    chi_squared_nw = np.loadtxt(folder + '/chi_squared_' + cms_string + '_nw.txt').T
+    chi_squared_nw_y = chi_squared_nw[0]
+    chi_squared_nw_x = chi_squared_nw[1]
 
-    chi_squared_mc = np.loadtxt(
-        '/mnt/d/Uni/Lectures/thesis/ALICE_data/simulated_ALICE_data/chi_squared_' + cms_string + '_mc' + '.txt').T
-    chi_squared_mc_y = chi_squared_mc[0]
-    chi_squared_mc_x = chi_squared_mc[1]
+    chi_squared_dw = np.loadtxt(folder + '/chi_squared_' + cms_string + '_dw.txt').T
+    chi_squared_dw_y = chi_squared_dw[0]
+    chi_squared_dw_x = chi_squared_dw[1]
 
-    chi_squared_w = np.loadtxt(
-        '/mnt/d/Uni/Lectures/thesis/ALICE_data/simulated_ALICE_data/chi_squared_' + cms_string + '_w.txt').T
-    chi_squared_w_y = chi_squared_w[0]
-    chi_squared_w_x = chi_squared_w[1]
+    chi_squared_cw = np.loadtxt(folder + '/chi_squared_' + cms_string + '_cw.txt').T
+    chi_squared_cw_y = chi_squared_cw[0]
+    chi_squared_cw_x = chi_squared_cw[1]
 
-    chi_squared_mc_w = np.loadtxt(
-        '/mnt/d/Uni/Lectures/thesis/ALICE_data/simulated_ALICE_data/chi_squared_' + cms_string + '_mc' + '_w.txt').T
-    chi_squared_mc_w_y = chi_squared_w[0]
-    chi_squared_mc_w_x = chi_squared_w[1]
-
-    plt.plot(chi_squared_x, chi_squared_y / norm, 'yD', markersize=1)
-    plt.plot(chi_squared_w_x, chi_squared_w_y / norm, 'rD', markersize=1)
-    # plt.plot(chi_squared_mc_x, chi_squared_mc_w_y / norm, 'bo')
-    # plt.plot(chi_squared_mc_w_x, chi_squared_mc_w_y / norm, 'go')
+    plt.semilogy(chi_squared_nw_x, chi_squared_nw_y / norm, 'yD', markersize=1, label='nw')
+    plt.semilogy(chi_squared_dw_x, chi_squared_dw_y / norm, 'rD', markersize=1, label='dw')
+    plt.semilogy(chi_squared_cw_x, chi_squared_cw_y / norm, 'bo', markersize=1, label='cw')
+    plt.legend()
 
     plt.ylabel('chi squared')
     plt.xlabel('p0/GeV')
 
-    pythia = mpatches.Patch(color='y', label='no weigths')
-    pythia_weighted = mpatches.Patch(color='r', label='weights')
-    plt.legend(handles=[pythia, pythia_weighted])
     plt.savefig('chi_squared_' + cms_string + '.jpeg', dpi=300, quality=95)
     plt.clf()
     plt.cla()
     plt.close()
 
-    chi_squared_total += chi_squared_y
-    chi_squared_total_w += chi_squared_w_y
+    chi_squared_total += chi_squared_nw_y
+    chi_squared_total_dw += chi_squared_dw_y
+    chi_squared_total_cw += chi_squared_cw_y
 
 norm = total_bins - fp
 
-plt.plot(chi_squared_x, chi_squared_total / norm, 'yo', markersize=1)
-plt.plot(chi_squared_x, chi_squared_total_w / norm, 'ro', markersize=1)
+plt.semilogy(chi_squared_nw_x, chi_squared_total / norm, 'yo', markersize=1, label='nw')
+plt.semilogy(chi_squared_nw_x, chi_squared_total_dw / norm, 'ro', markersize=1, label='dw')
+plt.semilogy(chi_squared_nw_x, chi_squared_total_cw / norm, 'bo', markersize=1, label='cw')
 plt.ylabel('chi squared')
 plt.xlabel('p0/GeV')
-plt.xlim(0.320, 0.360)
-plt.ylim(0, 16)
+# plt.xlim(190, 0.360)
+# plt.ylim(0, 16)
 
-pythia = mpatches.Patch(color='y', label='no weigths')
-pythia_weighted = mpatches.Patch(color='r', label='weights')
-plt.legend(handles=[pythia, pythia_weighted])
+plt.legend()
 plt.savefig('chi_squared_total.jpeg', dpi=300, quality=95)
 plt.clf()
 plt.cla()
 plt.close()
 
-print(min(chi_squared_total / norm), min(chi_squared_total_w / norm))
+print(min(chi_squared_total / norm), min(chi_squared_total_dw / norm), min(chi_squared_total_cw / norm))
