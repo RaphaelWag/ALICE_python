@@ -36,9 +36,6 @@ data_alice_y = data_alice[1]
 data_alice_x = data_alice[0]
 data_alice_error = data_alice[2]
 
-data_alice_x_f = np.insert(data_alice_x, 0, 0.1)
-data_alice_y_f = np.insert(data_alice_y, 0, 4.5 * 10 ** (-5))
-
 popt, pcov_ = curve_fit(fit_function, xdata=data_alice_x, ydata=data_alice_y,
                         sigma=data_alice_error,
                         method='trf',
